@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <title>React App</title>
+</head>
+<body>
+<div class="container">
+    <h1>Робота з фото</h1>
+    <form id="addForm">
+        <div class="mb-3">
+            <div class="row" id="contentImage">
+                <div class="col-md-2">
+                    <img src="https://cdn2.iconfinder.com/data/icons/leto-most-searched-mix-5/64/__image_plus_add-512.png"
+                         width="100%" alt="Пошук фото"
+                         style="cursor: pointer"
+                         id="btnAddImage">
+                </div>
+            </div>
+        </div>
+
+        <input class="btn btn-danger" type="submit" value="Завантажити на сервер">
+
+    </form>
+
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.4/axios.min.js"></script>
+
+
+<script>
+    //window.onload = function();
+    window.addEventListener("load", function() {
+        let addForm = document.getElementById("addForm");
+        let btnAddImage= document.getElementById("btnAddImage");
+        btnAddImage.addEventListener("click", function() {
+            let div=$(`<div class="col-md-2"></div>`);
+            let inputFile = $(`<input type="file" data-files style="display:none" class="form-control">`);
+            div.prepend(inputFile);
+
+            inputFile.click();
+            inputFile.on("change", function (e){
+                console.log(e.target.files[0].name);
+                let content =
+                    `
+                    <img src="${URL.createObjectURL(e.target.files[0])}"
+                         width="100%" alt="обране фото"
+                         style="cursor: pointer"
+                         id="btnAddImage">
+                `;
+                let btnDelete=$(`<button class="btn-close"></button>`);
+                div.prepend(content);
+                div.prepend(btnDelete);
+                $("#contentImage").prepend(div);
+                btnDelete.on('click', function(e) {
+                    e.preventDefault();
+                    $(this).closest("div").remove();
+                    console.log("remove");
+                });
+            });
+            console.log("click btn");
+        });
+
+        addForm.addEventListener("submit", async function(e) {
+            e.preventDefault();
+            console.log("Відправляємо запит на сервер");
+            let url = "/upload";
+            var formData = new FormData();
+            var el = document.querySelector('#contentImage');
+            var matches = el.querySelectorAll('input[data-files]');
+
+            for (var i = 0; i < matches.length; i++) {
+                formData.append("files", matches[i].files[0]);
+            }
+            let responce = await axios.post(url, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+
+        });
+    });
+</script>
+
+
+</body>
+</html>
